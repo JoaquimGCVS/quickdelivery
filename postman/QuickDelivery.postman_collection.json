@@ -1,0 +1,217 @@
+{
+  "info": {
+    "name": "QuickDelivery API – Sprint 1",
+    "description": "Coleção de testes do backend REST do Projeto Integrador QuickDelivery. Fluxo: criar cliente → criar prestador → criar entrega → aceitar → em andamento → entregue.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "clientId", "value": "" },
+    { "key": "providerId", "value": "" },
+    { "key": "deliveryId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+      }
+    },
+    {
+      "name": "1. Create Client",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('clientId', json.id);",
+              "pm.test('status 201', () => pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"João Cliente\",\n  \"phone\": \"+55 31 99999-0001\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/clients", "host": ["{{baseUrl}}"], "path": ["clients"] }
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"João Cliente\",\n  \"phone\": \"+55 31 99999-0001\"\n}" },
+            "url": { "raw": "{{baseUrl}}/clients", "host": ["{{baseUrl}}"], "path": ["clients"] }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"João Cliente\",\n  \"phone\": \"+55 31 99999-0001\",\n  \"createdAt\": \"2026-05-11T12:00:00.000Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "2. Create Provider",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('providerId', json.id);",
+              "pm.test('status 201', () => pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Carlos Entregador\",\n  \"phone\": \"+55 31 99999-0002\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/providers", "host": ["{{baseUrl}}"], "path": ["providers"] }
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Carlos Entregador\",\n  \"phone\": \"+55 31 99999-0002\"\n}" },
+            "url": { "raw": "{{baseUrl}}/providers", "host": ["{{baseUrl}}"], "path": ["providers"] }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"Carlos Entregador\",\n  \"phone\": \"+55 31 99999-0002\",\n  \"createdAt\": \"2026-05-11T12:00:00.000Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "3. Create Delivery",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('deliveryId', json.id);",
+              "pm.test('status 201', () => pm.response.to.have.status(201));",
+              "pm.test('status is PENDING', () => pm.expect(json.status).to.eql('PENDING'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clientId\": \"{{clientId}}\",\n  \"pickupAddress\": \"Rua das Flores, 123\",\n  \"dropoffAddress\": \"Av. Brasil, 4500\",\n  \"description\": \"Caixa pequena, 2kg\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/deliveries", "host": ["{{baseUrl}}"], "path": ["deliveries"] }
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"clientId\": \"<uuid>\",\n  \"pickupAddress\": \"Rua das Flores, 123\",\n  \"dropoffAddress\": \"Av. Brasil, 4500\",\n  \"description\": \"Caixa pequena, 2kg\"\n}" },
+            "url": { "raw": "{{baseUrl}}/deliveries", "host": ["{{baseUrl}}"], "path": ["deliveries"] }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"id\": \"<uuid>\",\n  \"clientId\": \"<uuid>\",\n  \"providerId\": null,\n  \"pickupAddress\": \"Rua das Flores, 123\",\n  \"dropoffAddress\": \"Av. Brasil, 4500\",\n  \"description\": \"Caixa pequena, 2kg\",\n  \"status\": \"PENDING\",\n  \"createdAt\": \"2026-05-11T12:00:00.000Z\",\n  \"updatedAt\": \"2026-05-11T12:00:00.000Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. List Deliveries (PENDING)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/deliveries?status=PENDING",
+          "host": ["{{baseUrl}}"],
+          "path": ["deliveries"],
+          "query": [{ "key": "status", "value": "PENDING" }]
+        }
+      }
+    },
+    {
+      "name": "5. Get Delivery By Id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/deliveries/{{deliveryId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["deliveries", "{{deliveryId}}"]
+        }
+      }
+    },
+    {
+      "name": "6. Accept Delivery",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"ACCEPTED\",\n  \"providerId\": \"{{providerId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/deliveries/{{deliveryId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["deliveries", "{{deliveryId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "7. Mark In Progress",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/deliveries/{{deliveryId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["deliveries", "{{deliveryId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "8. Mark Delivered",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"DELIVERED\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/deliveries/{{deliveryId}}/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["deliveries", "{{deliveryId}}", "status"]
+        }
+      }
+    }
+  ]
+}

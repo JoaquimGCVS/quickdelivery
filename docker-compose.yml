@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: quickdelivery-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: quickdelivery
+      POSTGRES_PASSWORD: quickdelivery
+      POSTGRES_DB: quickdelivery
+    ports:
+      - "5432:5432"
+    volumes:
+      - quickdelivery-pgdata:/var/lib/postgresql/data
+
+volumes:
+  quickdelivery-pgdata:
