@@ -4,7 +4,7 @@ import { DeliveryStatus } from '../types/delivery-status';
 
 export const deliveriesRepository = {
   create(data: {
-    clientId: string;
+    customerId: string;
     pickupAddress: string;
     dropoffAddress: string;
     description: string;
@@ -14,18 +14,19 @@ export const deliveriesRepository = {
   findById(id: string) {
     return prisma.delivery.findUnique({ where: { id } });
   },
-  findMany(filters: { status?: DeliveryStatus; providerId?: string }) {
+  findMany(filters: { status?: DeliveryStatus; deliverymanId?: string; customerId?: string }) {
     const where: Prisma.DeliveryWhereInput = {};
     if (filters.status) where.status = filters.status;
-    if (filters.providerId) where.providerId = filters.providerId;
+    if (filters.deliverymanId) where.deliverymanId = filters.deliverymanId;
+    if (filters.customerId) where.customerId = filters.customerId;
     return prisma.delivery.findMany({ where, orderBy: { createdAt: 'desc' } });
   },
-  updateStatus(id: string, status: DeliveryStatus, providerId?: string) {
+  updateStatus(id: string, status: DeliveryStatus, deliverymanId?: string) {
     return prisma.delivery.update({
       where: { id },
       data: {
         status,
-        ...(providerId !== undefined ? { providerId } : {}),
+        ...(deliverymanId !== undefined ? { deliverymanId } : {}),
       },
     });
   },

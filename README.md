@@ -1,30 +1,31 @@
-# QuickDelivery – Backend (Sprint 1)
+# QuickDelivery - Backend
 
-**Projeto Integrador – PUC Minas – Engenharia de Software**
+**Projeto Integrador - PUC Minas - Engenharia de Software**
+
 Aluno: Joaquim Vilela
 
 ## Resumo do Projeto
 
-O **QuickDelivery** é uma plataforma de delivery que conecta clientes a prestadores de serviço (entregadores) por meio de uma arquitetura distribuída orientada a eventos. O cliente solicita uma entrega informando origem, destino e descrição do item; o prestador recebe a demanda, aceita o serviço e atualiza o status da entrega até a conclusão. Esta Sprint 1 entrega o **backend REST** do sistema, implementado em **Node.js + Express + TypeScript** com persistência em **PostgreSQL** (via Prisma ORM e Docker), cobrindo o ciclo completo da entrega (`PENDING → ACCEPTED → IN_PROGRESS → DELIVERED`, com `CANCELLED` permitido nos estados intermediários). As sprints seguintes adicionarão Middleware Orientado a Mensagens (RabbitMQ) e os aplicativos móveis Flutter para cliente e prestador.
+O **QuickDelivery** é uma plataforma de delivery que conecta clientes a entregadores. O cliente solicita uma entrega informando origem, destino e descrição do item; o entregador visualiza demandas pendentes, aceita uma entrega e atualiza seu status até a conclusão.
+
+O backend é uma API REST em **Node.js + Express + TypeScript**, com **PostgreSQL** via Docker e **Prisma ORM**. O sistema possui autenticação por token, usuários com papel (`CUSTOMER` ou `DELIVERYMAN`), autorização por perfil, auditoria básica e gerenciamento do ciclo de vida das entregas.
 
 ---
 
-## Passo a Passo para Executar o Projeto
+## Como Executar
 
 ### Pré-requisitos
 
-- [**nvm**](https://github.com/nvm-sh/nvm) instalado (gerenciador de versões do Node).
-- **Docker Desktop** instalado e em execução.
+- `nvm` instalado.
+- Docker Desktop instalado e em execução.
 
 ### 1. Selecionar a versão do Node
-
-Na raiz do projeto:
 
 ```bash
 nvm use
 ```
 
-O arquivo `.nvmrc` define Node 24 (LTS). Se ainda não tiver instalado, rode `nvm install 24` antes.
+O arquivo `.nvmrc` define Node 24. Se necessário, rode `nvm install 24`.
 
 ### 2. Instalar dependências
 
@@ -32,64 +33,81 @@ O arquivo `.nvmrc` define Node 24 (LTS). Se ainda não tiver instalado, rode `nv
 npm install
 ```
 
-### 3. Configurar variáveis de ambiente
+### 3. Configurar ambiente
 
 ```bash
 cp .env.example .env
 ```
 
-O `.env.example` já está preenchido com credenciais que batem com o `docker-compose.yml`. Nenhum ajuste manual é necessário em ambiente local.
+O `.env.example` usa as mesmas credenciais do `docker-compose.yml`.
 
-### 4. Subir o banco PostgreSQL via Docker
+### 4. Subir o PostgreSQL
 
 ```bash
 docker compose up -d
 ```
 
-Isso inicia o container `quickdelivery-postgres` em `localhost:5432`.
-
-### 5. Aplicar a migration inicial do Prisma
+### 5. Aplicar as migrations
 
 ```bash
-npx prisma migrate dev --name init
+npx prisma migrate dev
 ```
 
-Esse comando cria as tabelas `clients`, `providers` e `deliveries` no banco e gera o Prisma Client.
+As migrations criam as tabelas `users`, `deliveries` e `audit_logs`, além dos enums `UserRole`, `DeliveryStatus` e `AuditAction`.
 
-### 6. Iniciar o servidor
+### 6. Popular dados de teste
+
+```bash
+npm run seed
+```
+
+A coleção Postman usa estes usuários seedados:
+
+| Perfil | Email | Senha |
+|---|---|---|
+| Cliente | `customer1@example.com` | `password123` |
+| Cliente | `customer2@example.com` | `password123` |
+| Entregador | `deliveryman1@example.com` | `password123` |
+| Entregador | `deliveryman2@example.com` | `password123` |
+
+### 7. Iniciar o servidor
 
 ```bash
 npm run dev
 ```
 
-A API estará disponível em `http://localhost:3000`. Para verificar:
+A API estará disponível em `http://localhost:3000`.
 
 ```bash
 curl http://localhost:3000/health
 # {"status":"ok"}
 ```
 
-### 7. Testar os endpoints
+### 8. Testar no Postman
 
-A coleção Postman está em `postman/QuickDelivery.postman_collection.json`. Importe-a no Postman ou Insomnia; ela executa o caminho feliz em sequência (criar cliente → criar prestador → criar entrega → aceitar → em andamento → entregue), salvando os IDs em variáveis de coleção.
+Importe `postman/QuickDelivery.postman_collection.json` e execute as requisições em ordem. O fluxo principal é: login do cliente -> login do entregador -> criar entrega -> aceitar -> marcar em andamento -> marcar como entregue.
 
 ---
 
 ## Endpoints
 
-| Método | Rota | Descrição |
-|---|---|---|
-| `GET` | `/health` | Healthcheck. |
-| `POST` | `/clients` | Cria um cliente. |
-| `GET` | `/clients` | Lista clientes. |
-| `POST` | `/providers` | Cria um prestador (entregador). |
-| `GET` | `/providers` | Lista prestadores. |
-| `POST` | `/deliveries` | Cliente cria uma solicitação de entrega. |
-| `GET` | `/deliveries` | Lista entregas. Aceita `?status=` e `?providerId=`. |
-| `GET` | `/deliveries/:id` | Detalhe de uma entrega. |
-| `PATCH` | `/deliveries/:id/status` | Atualiza o status (com validação de transição). |
+| Método | Rota | Autenticação | Descrição |
+|---|---|---|---|
+| `GET` | `/health` | Não | Healthcheck. |
+| `POST` | `/auth/signup` | Não | Cria usuário cliente ou entregador. |
+| `POST` | `/auth/login` | Não | Autentica usuário e retorna token. |
+| `GET` | `/auth/me` | Sim | Retorna o usuário autenticado. |
+| `GET` | `/customers` | Não | Lista usuários com papel `CUSTOMER`. |
+| `GET` | `/customers/:id` | Não | Detalha cliente sem expor senha. |
+| `DELETE` | `/customers/:id` | Sim, cliente dono | Remove a própria conta de cliente. |
+| `GET` | `/deliverymen` | Não | Lista usuários com papel `DELIVERYMAN`. |
+| `GET` | `/deliverymen/:id` | Não | Detalha entregador sem expor senha. |
+| `POST` | `/deliveries` | Sim | Cliente cria uma entrega para si mesmo. |
+| `GET` | `/deliveries` | Sim | Lista entregas conforme perfil autenticado. Aceita `?status=`. |
+| `GET` | `/deliveries/:id` | Sim | Detalha entrega respeitando autorização por perfil. |
+| `PATCH` | `/deliveries/:id/status` | Sim | Atualiza status com validação de transição. |
 
-Ao mover uma entrega para `ACCEPTED`, o campo `providerId` é obrigatório no body.
+Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um entregador só pode aceitar entregas para si mesmo. Clientes só conseguem criar, listar e alterar entregas próprias.
 
 ---
 
@@ -97,32 +115,34 @@ Ao mover uma entrega para `ACCEPTED`, o campo `providerId` é obrigatório no bo
 
 | Script | Descrição |
 |---|---|
-| `npm run dev` | Sobe o servidor com hot reload (ts-node-dev). |
+| `npm run dev` | Sobe o servidor com hot reload. |
 | `npm run build` | Compila TypeScript para `dist/`. |
 | `npm start` | Executa a versão compilada. |
-| `npm run prisma:migrate` | Cria/aplica novas migrations. |
-| `npm run prisma:studio` | Abre o Prisma Studio (GUI do banco). |
+| `npm run prisma:migrate` | Cria/aplica migrations com Prisma. |
+| `npm run prisma:generate` | Gera o Prisma Client. |
+| `npm run prisma:studio` | Abre o Prisma Studio. |
+| `npm run seed` | Popula o banco com usuários e entregas de teste. |
 
 ---
 
 ## Estrutura do Projeto
 
-```
+```text
 delivery-back/
-├── docker-compose.yml           # PostgreSQL
+├── docker-compose.yml
 ├── prisma/
-│   ├── schema.prisma            # Modelo (Client, Provider, Delivery)
-│   └── migrations/              # Histórico de migrations
+│   ├── schema.prisma            # Modelo User, Delivery e AuditLog
+│   └── migrations/
 ├── postman/
 │   └── QuickDelivery.postman_collection.json
 └── src/
-    ├── server.ts                # Bootstrap
-    ├── app.ts                   # Configuração do Express
-    ├── routes/                  # Express Routers
-    ├── controllers/             # Handlers HTTP (req/res)
-    ├── services/                # Regras de negócio
-    ├── repositories/            # Acesso a dados via Prisma
-    ├── infrastructure/prisma.ts # PrismaClient singleton
-    ├── middlewares/             # Tratamento de erros
-    └── types/                   # Enum DeliveryStatus + transições válidas
+    ├── server.ts
+    ├── app.ts
+    ├── routes/
+    ├── controllers/
+    ├── services/
+    ├── repositories/
+    ├── infrastructure/prisma.ts
+    ├── middlewares/
+    └── types/
 ```

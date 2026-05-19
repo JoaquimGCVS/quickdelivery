@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  CUSTOMER
+  DELIVERYMAN
+}
+
 enum DeliveryStatus {
   PENDING
   ACCEPTED
@@ -15,30 +20,33 @@ enum DeliveryStatus {
   CANCELLED
 }
 
-model Client {
-  id         String     @id @default(uuid())
-  name       String
-  phone      String
-  createdAt  DateTime   @default(now()) @map("created_at")
-  deliveries Delivery[]
-
-  @@map("clients")
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
 }
 
-model Provider {
-  id         String     @id @default(uuid())
-  name       String
-  phone      String
-  createdAt  DateTime   @default(now()) @map("created_at")
-  deliveries Delivery[]
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String
+  role      UserRole
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("providers")
+  deliveriesAsCustomer    Delivery[] @relation("customer")
+  deliveriesAsDeliveryman Delivery[] @relation("deliveryman")
+  auditLogs               AuditLog[]
+
+  @@map("users")
 }
 
 model Delivery {
   id             String         @id @default(uuid())
-  clientId       String         @map("client_id")
-  providerId     String?        @map("provider_id")
+  customerId     String         @map("customer_id")
+  deliverymanId  String?        @map("deliveryman_id")
   pickupAddress  String         @map("pickup_address")
   dropoffAddress String         @map("dropoff_address")
   description    String
@@ -46,8 +54,22 @@ model Delivery {
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
 
-  client   Client    @relation(fields: [clientId], references: [id])
-  provider Provider? @relation(fields: [providerId], references: [id])
+  customer    User  @relation("customer", fields: [customerId], references: [id])
+  deliveryman User? @relation("deliveryman", fields: [deliverymanId], references: [id])
 
   @@map("deliveries")
+}
+
+model AuditLog {
+  id         String      @id @default(uuid())
+  userId     String      @map("user_id")
+  action     AuditAction
+  resource   String
+  resourceId String      @map("resource_id")
+  changes    String? // JSON string
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
 }
