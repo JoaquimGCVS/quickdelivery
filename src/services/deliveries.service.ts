@@ -3,6 +3,7 @@ import { usersRepository } from '../repositories/users.repository';
 import { deliveriesRepository } from '../repositories/deliveries.repository';
 import { DeliveryStatus, canTransition, isDeliveryStatus } from '../types/delivery-status';
 import { prismaClient } from '../infrastructure/prisma';
+import { deliveryEventsPublisher } from '../events/delivery-events.publisher';
 
 function requireString(value: unknown, field: string): string {
   if (typeof value !== 'string' || !value.trim()) {
@@ -40,6 +41,7 @@ export const deliveriesService = {
     if (customer.role !== 'CUSTOMER') throw new ValidationError('Customer must be a CUSTOMER');
 
     const delivery = await deliveriesRepository.create({ customerId, pickupAddress, dropoffAddress, description });
+    await deliveryEventsPublisher.publishCreated(delivery);
     return delivery;
   },
 
@@ -145,6 +147,10 @@ export const deliveriesService = {
     }
 
     const updated = await deliveriesRepository.updateStatus(id, nextStatus, deliverymanId);
+    await deliveryEventsPublisher.publishStatusChanged(updated, delivery.status, nextStatus);
+    if (nextStatus === 'ACCEPTED') {
+      await deliveryEventsPublisher.publishAccepted(updated);
+    }
     return updated;
   },
 };

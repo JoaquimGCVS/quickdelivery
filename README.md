@@ -8,7 +8,7 @@ Aluno: Joaquim Vilela
 
 O **QuickDelivery** é uma plataforma de delivery que conecta clientes a entregadores. O cliente solicita uma entrega informando origem, destino e descrição do item; o entregador visualiza demandas pendentes, aceita uma entrega e atualiza seu status até a conclusão.
 
-O backend é uma API REST em **Node.js + Express + TypeScript**, com **PostgreSQL** via Docker e **Prisma ORM**. O sistema possui autenticação por token, usuários com papel (`CUSTOMER` ou `DELIVERYMAN`), autorização por perfil e gerenciamento do ciclo de vida das entregas.
+O backend é uma API REST em **Node.js + Express + TypeScript**, com **PostgreSQL** via Docker, **Prisma ORM** e **RabbitMQ** para eventos assíncronos. O sistema possui autenticação por token, usuários com papel (`CUSTOMER` ou `DELIVERYMAN`), autorização por perfil e gerenciamento do ciclo de vida das entregas.
 
 ---
 
@@ -41,7 +41,7 @@ cp .env.example .env
 
 O `.env.example` usa as mesmas credenciais do `docker-compose.yml`.
 
-### 4. Subir o PostgreSQL
+### 4. Subir o PostgreSQL e RabbitMQ
 
 ```bash
 docker compose up -d
@@ -83,6 +83,12 @@ curl http://localhost:3000/health
 # {"status":"ok"}
 ```
 
+Para acompanhar os eventos de entrega publicados no RabbitMQ, rode em outro terminal:
+
+```bash
+npm run consumer:deliveries
+```
+
 ### 8. Testar no Postman
 
 Importe `postman/QuickDelivery.postman_collection.json` e execute as requisições em ordem. O fluxo principal é: login do cliente -> login do entregador -> criar entrega -> aceitar -> marcar em andamento -> marcar como entregue.
@@ -118,6 +124,7 @@ Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um ent
 | `npm run dev` | Sobe o servidor com hot reload. |
 | `npm run build` | Compila TypeScript para `dist/`. |
 | `npm start` | Executa a versão compilada. |
+| `npm run consumer:deliveries` | Inicia o consumidor dos eventos de entrega no RabbitMQ. |
 | `npm run prisma:migrate` | Cria/aplica migrations com Prisma. |
 | `npm run prisma:generate` | Gera o Prisma Client. |
 | `npm run prisma:studio` | Abre o Prisma Studio. |
@@ -138,11 +145,13 @@ delivery-back/
 └── src/
     ├── server.ts
     ├── app.ts
+    ├── consumers/
+    ├── events/
     ├── routes/
     ├── controllers/
     ├── services/
     ├── repositories/
-    ├── infrastructure/prisma.ts
+    ├── infrastructure/
     ├── middlewares/
     └── types/
 ```
