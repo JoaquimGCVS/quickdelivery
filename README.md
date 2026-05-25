@@ -93,6 +93,37 @@ npm run consumer:deliveries
 
 Importe `postman/QuickDelivery.postman_collection.json` e execute as requisições em ordem. O fluxo principal é: login do cliente -> login do entregador -> criar entrega -> aceitar -> marcar em andamento -> marcar como entregue.
 
+### 9. Testar RabbitMQ
+
+Com a API e o consumer rodando, execute no Postman:
+
+1. `Auth / Login Customer 1`
+2. `Auth / Login Deliveryman 1`
+3. `Deliveries / Create Delivery`
+4. `Deliveries / Accept Delivery (Deliveryman)`
+5. `Deliveries / Update to IN_PROGRESS`
+6. `Deliveries / Update to DELIVERED`
+
+O terminal do consumer deve exibir os eventos:
+
+- `delivery.created`
+- `delivery.accepted`
+- `delivery.status_changed`
+
+Também é possível acompanhar o RabbitMQ no navegador:
+
+```text
+http://localhost:15672
+```
+
+Credenciais:
+
+```text
+quickdelivery / quickdelivery
+```
+
+A exchange usada é `quickdelivery.events` e a fila consumida é `quickdelivery.delivery-events`.
+
 ---
 
 ## Endpoints
