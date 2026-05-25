@@ -20,12 +20,6 @@ enum DeliveryStatus {
   CANCELLED
 }
 
-enum AuditAction {
-  CREATE
-  UPDATE
-  DELETE
-}
-
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -38,7 +32,6 @@ model User {
 
   deliveriesAsCustomer    Delivery[] @relation("customer")
   deliveriesAsDeliveryman Delivery[] @relation("deliveryman")
-  auditLogs               AuditLog[]
 
   @@map("users")
 }
@@ -58,18 +51,4 @@ model Delivery {
   deliveryman User? @relation("deliveryman", fields: [deliverymanId], references: [id])
 
   @@map("deliveries")
-}
-
-model AuditLog {
-  id         String      @id @default(uuid())
-  userId     String      @map("user_id")
-  action     AuditAction
-  resource   String
-  resourceId String      @map("resource_id")
-  changes    String? // JSON string
-  createdAt  DateTime    @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("audit_logs")
 }

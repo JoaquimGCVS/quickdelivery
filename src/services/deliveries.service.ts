@@ -19,12 +19,6 @@ function parseStatus(raw: string, field = 'status'): DeliveryStatus {
   return upper;
 }
 
-async function logAuditEvent(userId: string, action: string, resource: string, resourceId: string, changes?: string) {
-  await prismaClient.auditLog.create({
-    data: { userId, action: action as any, resource, resourceId, changes },
-  });
-}
-
 export const deliveriesService = {
   async create(input: {
     customerId?: unknown;
@@ -46,7 +40,6 @@ export const deliveriesService = {
     if (customer.role !== 'CUSTOMER') throw new ValidationError('Customer must be a CUSTOMER');
 
     const delivery = await deliveriesRepository.create({ customerId, pickupAddress, dropoffAddress, description });
-    await logAuditEvent(authenticatedUserId, 'CREATE', 'delivery', delivery.id);
     return delivery;
   },
 
@@ -152,7 +145,6 @@ export const deliveriesService = {
     }
 
     const updated = await deliveriesRepository.updateStatus(id, nextStatus, deliverymanId);
-    await logAuditEvent(authenticatedUserId, 'UPDATE', 'delivery', id, JSON.stringify({ from: delivery.status, to: nextStatus }));
     return updated;
   },
 };

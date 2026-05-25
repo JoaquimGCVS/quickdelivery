@@ -10,7 +10,6 @@ async function main() {
   console.log('🌱 Seeding database...');
 
   // Limpar dados existentes
-  await prismaClient.auditLog.deleteMany();
   await prismaClient.delivery.deleteMany();
   await prismaClient.user.deleteMany();
 

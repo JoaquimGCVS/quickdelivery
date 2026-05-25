@@ -8,7 +8,7 @@ Aluno: Joaquim Vilela
 
 O **QuickDelivery** é uma plataforma de delivery que conecta clientes a entregadores. O cliente solicita uma entrega informando origem, destino e descrição do item; o entregador visualiza demandas pendentes, aceita uma entrega e atualiza seu status até a conclusão.
 
-O backend é uma API REST em **Node.js + Express + TypeScript**, com **PostgreSQL** via Docker e **Prisma ORM**. O sistema possui autenticação por token, usuários com papel (`CUSTOMER` ou `DELIVERYMAN`), autorização por perfil, auditoria básica e gerenciamento do ciclo de vida das entregas.
+O backend é uma API REST em **Node.js + Express + TypeScript**, com **PostgreSQL** via Docker e **Prisma ORM**. O sistema possui autenticação por token, usuários com papel (`CUSTOMER` ou `DELIVERYMAN`), autorização por perfil e gerenciamento do ciclo de vida das entregas.
 
 ---
 
@@ -53,7 +53,7 @@ docker compose up -d
 npx prisma migrate dev
 ```
 
-As migrations criam as tabelas `users`, `deliveries` e `audit_logs`, além dos enums `UserRole`, `DeliveryStatus` e `AuditAction`.
+As migrations criam as tabelas `users` e `deliveries`, além dos enums `UserRole` e `DeliveryStatus`.
 
 ### 6. Popular dados de teste
 
@@ -131,7 +131,7 @@ Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um ent
 delivery-back/
 ├── docker-compose.yml
 ├── prisma/
-│   ├── schema.prisma            # Modelo User, Delivery e AuditLog
+│   ├── schema.prisma            # Modelo User e Delivery
 │   └── migrations/
 ├── postman/
 │   └── QuickDelivery.postman_collection.json
