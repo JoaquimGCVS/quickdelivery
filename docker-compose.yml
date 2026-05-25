@@ -12,5 +12,19 @@ services:
     volumes:
       - quickdelivery-pgdata:/var/lib/postgresql/data
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: quickdelivery-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: quickdelivery
+      RABBITMQ_DEFAULT_PASS: quickdelivery
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - quickdelivery-rabbitmq-data:/var/lib/rabbitmq
+
 volumes:
   quickdelivery-pgdata:
+  quickdelivery-rabbitmq-data:

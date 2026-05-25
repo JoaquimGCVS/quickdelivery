@@ -4,7 +4,8 @@ import { deliveriesService } from '../services/deliveries.service';
 export const deliveriesController = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const delivery = await deliveriesService.create(req.body);
+      const user = (req as any).user;
+      const delivery = await deliveriesService.create(req.body, user.userId);
       res.status(201).json(delivery);
     } catch (err) {
       next(err);
@@ -12,10 +13,11 @@ export const deliveriesController = {
   },
   async list(req: Request, res: Response, next: NextFunction) {
     try {
+      const user = (req as any).user;
       const status = typeof req.query.status === 'string' ? req.query.status : undefined;
-      const providerId =
-        typeof req.query.providerId === 'string' ? req.query.providerId : undefined;
-      const deliveries = await deliveriesService.list({ status, providerId });
+      const deliverymanId =
+        typeof req.query.deliverymanId === 'string' ? req.query.deliverymanId : undefined;
+      const deliveries = await deliveriesService.list({ status, deliverymanId }, user.userId, user.role);
       res.json(deliveries);
     } catch (err) {
       next(err);
@@ -23,7 +25,8 @@ export const deliveriesController = {
   },
   async findById(req: Request, res: Response, next: NextFunction) {
     try {
-      const delivery = await deliveriesService.findById(req.params.id);
+      const user = (req as any).user;
+      const delivery = await deliveriesService.findById(req.params.id, user.userId, user.role);
       res.json(delivery);
     } catch (err) {
       next(err);
@@ -31,7 +34,8 @@ export const deliveriesController = {
   },
   async updateStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const delivery = await deliveriesService.updateStatus(req.params.id, req.body);
+      const user = (req as any).user;
+      const delivery = await deliveriesService.updateStatus(req.params.id, req.body, user.userId, user.role);
       res.json(delivery);
     } catch (err) {
       next(err);

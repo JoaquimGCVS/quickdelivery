@@ -1,217 +1,355 @@
 {
   "info": {
-    "name": "QuickDelivery API – Sprint 1",
-    "description": "Coleção de testes do backend REST do Projeto Integrador QuickDelivery. Fluxo: criar cliente → criar prestador → criar entrega → aceitar → em andamento → entregue.",
+    "name": "QuickDelivery API",
+    "description": "Coleção de testes para a API QuickDelivery com autenticação JWT - Sprint 1 Upgrade",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000" },
-    { "key": "clientId", "value": "" },
-    { "key": "providerId", "value": "" },
-    { "key": "deliveryId", "value": "" }
-  ],
   "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login Customer 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"token\", jsonData.token);",
+                  "pm.collectionVariables.set(\"customerId\", jsonData.user.id);",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Token exists\", function () {",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer1@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login Deliveryman 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"deliverymanToken\", jsonData.token);",
+                  "pm.collectionVariables.set(\"deliverymanId\", jsonData.user.id);",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"deliveryman1@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deliveries",
+      "item": [
+        {
+          "name": "List Deliveries (Customer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/deliveries",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["deliveries"]
+            }
+          }
+        },
+        {
+          "name": "List Deliveries (Deliveryman - PENDING)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deliverymanToken}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/deliveries?status=PENDING",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["deliveries"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "PENDING"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Deliveries (Deliveryman - All)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deliverymanToken}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/deliveries",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["deliveries"]
+            }
+          }
+        },
+        {
+          "name": "Create Delivery",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"deliveryId\", jsonData.id);",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"pickupAddress\": \"Rua A, 100 - São Paulo\",\n  \"dropoffAddress\": \"Rua B, 200 - São Paulo\",\n  \"description\": \"Entrega de teste\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/deliveries",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["deliveries"]
+            }
+          }
+        },
+        {
+          "name": "Accept Delivery (Deliveryman)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deliverymanToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACCEPTED\",\n  \"deliverymanId\": \"{{deliverymanId}}\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/deliveries/{{deliveryId}}/status",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["deliveries", "{{deliveryId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Update to IN_PROGRESS",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deliverymanToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/deliveries/{{deliveryId}}/status",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["deliveries", "{{deliveryId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Update to DELIVERED",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deliverymanToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DELIVERED\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/deliveries/{{deliveryId}}/status",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["deliveries", "{{deliveryId}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Customers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/customers",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["customers"]
+            }
+          }
+        },
+        {
+          "name": "List Deliverymen",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/deliverymen",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["deliverymen"]
+            }
+          }
+        }
+      ]
+    },
     {
       "name": "Health",
       "request": {
         "method": "GET",
-        "header": [],
-        "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
-      }
-    },
-    {
-      "name": "1. Create Client",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "const json = pm.response.json();",
-              "pm.collectionVariables.set('clientId', json.id);",
-              "pm.test('status 201', () => pm.response.to.have.status(201));"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"João Cliente\",\n  \"phone\": \"+55 31 99999-0001\"\n}"
-        },
-        "url": { "raw": "{{baseUrl}}/clients", "host": ["{{baseUrl}}"], "path": ["clients"] }
-      },
-      "response": [
-        {
-          "name": "201 Created",
-          "originalRequest": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"João Cliente\",\n  \"phone\": \"+55 31 99999-0001\"\n}" },
-            "url": { "raw": "{{baseUrl}}/clients", "host": ["{{baseUrl}}"], "path": ["clients"] }
-          },
-          "status": "Created",
-          "code": 201,
-          "_postman_previewlanguage": "json",
-          "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"João Cliente\",\n  \"phone\": \"+55 31 99999-0001\",\n  \"createdAt\": \"2026-05-11T12:00:00.000Z\"\n}"
-        }
-      ]
-    },
-    {
-      "name": "2. Create Provider",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "const json = pm.response.json();",
-              "pm.collectionVariables.set('providerId', json.id);",
-              "pm.test('status 201', () => pm.response.to.have.status(201));"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"Carlos Entregador\",\n  \"phone\": \"+55 31 99999-0002\"\n}"
-        },
-        "url": { "raw": "{{baseUrl}}/providers", "host": ["{{baseUrl}}"], "path": ["providers"] }
-      },
-      "response": [
-        {
-          "name": "201 Created",
-          "originalRequest": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Carlos Entregador\",\n  \"phone\": \"+55 31 99999-0002\"\n}" },
-            "url": { "raw": "{{baseUrl}}/providers", "host": ["{{baseUrl}}"], "path": ["providers"] }
-          },
-          "status": "Created",
-          "code": 201,
-          "_postman_previewlanguage": "json",
-          "body": "{\n  \"id\": \"<uuid>\",\n  \"name\": \"Carlos Entregador\",\n  \"phone\": \"+55 31 99999-0002\",\n  \"createdAt\": \"2026-05-11T12:00:00.000Z\"\n}"
-        }
-      ]
-    },
-    {
-      "name": "3. Create Delivery",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "const json = pm.response.json();",
-              "pm.collectionVariables.set('deliveryId', json.id);",
-              "pm.test('status 201', () => pm.response.to.have.status(201));",
-              "pm.test('status is PENDING', () => pm.expect(json.status).to.eql('PENDING'));"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"clientId\": \"{{clientId}}\",\n  \"pickupAddress\": \"Rua das Flores, 123\",\n  \"dropoffAddress\": \"Av. Brasil, 4500\",\n  \"description\": \"Caixa pequena, 2kg\"\n}"
-        },
-        "url": { "raw": "{{baseUrl}}/deliveries", "host": ["{{baseUrl}}"], "path": ["deliveries"] }
-      },
-      "response": [
-        {
-          "name": "201 Created",
-          "originalRequest": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"clientId\": \"<uuid>\",\n  \"pickupAddress\": \"Rua das Flores, 123\",\n  \"dropoffAddress\": \"Av. Brasil, 4500\",\n  \"description\": \"Caixa pequena, 2kg\"\n}" },
-            "url": { "raw": "{{baseUrl}}/deliveries", "host": ["{{baseUrl}}"], "path": ["deliveries"] }
-          },
-          "status": "Created",
-          "code": 201,
-          "_postman_previewlanguage": "json",
-          "body": "{\n  \"id\": \"<uuid>\",\n  \"clientId\": \"<uuid>\",\n  \"providerId\": null,\n  \"pickupAddress\": \"Rua das Flores, 123\",\n  \"dropoffAddress\": \"Av. Brasil, 4500\",\n  \"description\": \"Caixa pequena, 2kg\",\n  \"status\": \"PENDING\",\n  \"createdAt\": \"2026-05-11T12:00:00.000Z\",\n  \"updatedAt\": \"2026-05-11T12:00:00.000Z\"\n}"
-        }
-      ]
-    },
-    {
-      "name": "4. List Deliveries (PENDING)",
-      "request": {
-        "method": "GET",
-        "header": [],
         "url": {
-          "raw": "{{baseUrl}}/deliveries?status=PENDING",
-          "host": ["{{baseUrl}}"],
-          "path": ["deliveries"],
-          "query": [{ "key": "status", "value": "PENDING" }]
+          "raw": "http://localhost:3000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["health"]
         }
       }
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
     },
     {
-      "name": "5. Get Delivery By Id",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/deliveries/{{deliveryId}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["deliveries", "{{deliveryId}}"]
-        }
-      }
+      "key": "customerId",
+      "value": ""
     },
     {
-      "name": "6. Accept Delivery",
-      "request": {
-        "method": "PATCH",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"status\": \"ACCEPTED\",\n  \"providerId\": \"{{providerId}}\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/deliveries/{{deliveryId}}/status",
-          "host": ["{{baseUrl}}"],
-          "path": ["deliveries", "{{deliveryId}}", "status"]
-        }
-      }
+      "key": "deliverymanToken",
+      "value": ""
     },
     {
-      "name": "7. Mark In Progress",
-      "request": {
-        "method": "PATCH",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/deliveries/{{deliveryId}}/status",
-          "host": ["{{baseUrl}}"],
-          "path": ["deliveries", "{{deliveryId}}", "status"]
-        }
-      }
+      "key": "deliverymanId",
+      "value": ""
     },
     {
-      "name": "8. Mark Delivered",
-      "request": {
-        "method": "PATCH",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"status\": \"DELIVERED\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/deliveries/{{deliveryId}}/status",
-          "host": ["{{baseUrl}}"],
-          "path": ["deliveries", "{{deliveryId}}", "status"]
-        }
-      }
+      "key": "deliveryId",
+      "value": ""
     }
   ]
 }

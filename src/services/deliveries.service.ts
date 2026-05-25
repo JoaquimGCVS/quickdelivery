@@ -1,8 +1,9 @@
-import { NotFoundError, ValidationError } from '../middlewares/error-handler';
-import { clientsRepository } from '../repositories/clients.repository';
+import { NotFoundError, ValidationError, ForbiddenError } from '../middlewares/error-handler';
+import { usersRepository } from '../repositories/users.repository';
 import { deliveriesRepository } from '../repositories/deliveries.repository';
-import { providersRepository } from '../repositories/providers.repository';
 import { DeliveryStatus, canTransition, isDeliveryStatus } from '../types/delivery-status';
+import { prismaClient } from '../infrastructure/prisma';
+import { deliveryEventsPublisher } from '../events/delivery-events.publisher';
 
 function requireString(value: unknown, field: string): string {
   if (typeof value !== 'string' || !value.trim()) {
@@ -21,34 +22,92 @@ function parseStatus(raw: string, field = 'status'): DeliveryStatus {
 
 export const deliveriesService = {
   async create(input: {
-    clientId?: unknown;
+    customerId?: unknown;
     pickupAddress?: unknown;
     dropoffAddress?: unknown;
     description?: unknown;
-  }) {
-    const clientId = requireString(input.clientId, 'clientId');
+  }, authenticatedUserId: string) {
+    const customerId = requireString(input.customerId, 'customerId');
     const pickupAddress = requireString(input.pickupAddress, 'pickupAddress');
     const dropoffAddress = requireString(input.dropoffAddress, 'dropoffAddress');
     const description = requireString(input.description, 'description');
 
-    const client = await clientsRepository.findById(clientId);
-    if (!client) throw new NotFoundError(`Client ${clientId} not found`);
+    if (customerId !== authenticatedUserId) {
+      throw new ForbiddenError('You can only create deliveries for yourself');
+    }
 
-    return deliveriesRepository.create({ clientId, pickupAddress, dropoffAddress, description });
-  },
+    const customer = await usersRepository.findById(customerId);
+    if (!customer) throw new NotFoundError(`Customer ${customerId} not found`);
+    if (customer.role !== 'CUSTOMER') throw new ValidationError('Customer must be a CUSTOMER');
 
-  async findById(id: string) {
-    const delivery = await deliveriesRepository.findById(id);
-    if (!delivery) throw new NotFoundError(`Delivery ${id} not found`);
+    const delivery = await deliveriesRepository.create({ customerId, pickupAddress, dropoffAddress, description });
+    await deliveryEventsPublisher.publishCreated(delivery);
     return delivery;
   },
 
-  list(filters: { status?: string; providerId?: string }) {
-    const status = filters.status ? parseStatus(filters.status) : undefined;
-    return deliveriesRepository.findMany({ status, providerId: filters.providerId });
+  async findById(id: string, authenticatedUserId: string, userRole: string) {
+    const delivery = await deliveriesRepository.findById(id);
+    if (!delivery) throw new NotFoundError(`Delivery ${id} not found`);
+
+    if (userRole === 'CUSTOMER' && delivery.customerId !== authenticatedUserId) {
+      throw new ForbiddenError('You can only view your own deliveries');
+    }
+
+    if (
+      userRole === 'DELIVERYMAN' &&
+      delivery.status !== 'PENDING' &&
+      delivery.deliverymanId !== authenticatedUserId
+    ) {
+      throw new ForbiddenError('You can only view pending deliveries or deliveries assigned to you');
+    }
+
+    return delivery;
   },
 
-  async updateStatus(id: string, input: { status?: unknown; providerId?: unknown }) {
+  async list(filters: { status?: string; deliverymanId?: string }, authenticatedUserId: string, userRole: string) {
+    const status = filters.status ? parseStatus(filters.status) : undefined;
+
+    // Se for CUSTOMER, só pode ver seus próprios pedidos
+    if (userRole === 'CUSTOMER') {
+      return deliveriesRepository.findMany({ status, customerId: authenticatedUserId });
+    }
+
+    // Se for DELIVERYMAN, vê entregas PENDING (disponíveis) + as que ele aceitou
+    if (userRole === 'DELIVERYMAN') {
+      // Se filtrou por status específico, respeita o filtro
+      if (status) {
+        if (status === 'PENDING') {
+          // Ver apenas PENDING
+          return prismaClient.delivery.findMany({
+            where: { status: 'PENDING' },
+            orderBy: { createdAt: 'desc' },
+          });
+        } else {
+          // Ver status específico apenas de suas entregas aceitas
+          return deliveriesRepository.findMany({ status, deliverymanId: authenticatedUserId });
+        }
+      }
+      // Sem filtro: vê PENDING + suas entregas aceitas
+      return prismaClient.delivery.findMany({
+        where: {
+          OR: [
+            { status: 'PENDING' },
+            { deliverymanId: authenticatedUserId },
+          ],
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
+    return [];
+  },
+
+  async updateStatus(
+    id: string,
+    input: { status?: unknown; deliverymanId?: unknown },
+    authenticatedUserId: string,
+    userRole: string,
+  ) {
     const rawStatus = requireString(input.status, 'status');
     const nextStatus = parseStatus(rawStatus);
 
@@ -61,13 +120,37 @@ export const deliveriesService = {
       );
     }
 
-    let providerId: string | undefined;
-    if (nextStatus === 'ACCEPTED') {
-      providerId = requireString(input.providerId, 'providerId');
-      const provider = await providersRepository.findById(providerId);
-      if (!provider) throw new NotFoundError(`Provider ${providerId} not found`);
+    // Validações de autorização
+    if (userRole === 'CUSTOMER' && delivery.customerId !== authenticatedUserId) {
+      throw new ForbiddenError('You can only modify your own deliveries');
     }
 
-    return deliveriesRepository.updateStatus(id, nextStatus, providerId);
+    if (userRole === 'DELIVERYMAN' && delivery.deliverymanId && delivery.deliverymanId !== authenticatedUserId) {
+      throw new ForbiddenError('You can only modify deliveries assigned to you');
+    }
+
+    // Se tentando aceitar um pedido, deliverymanId é obrigatório
+    let deliverymanId: string | undefined;
+    if (nextStatus === 'ACCEPTED') {
+      deliverymanId = requireString(input.deliverymanId, 'deliverymanId');
+      if (userRole === 'DELIVERYMAN' && deliverymanId !== authenticatedUserId) {
+        throw new ForbiddenError('You can only accept deliveries for yourself');
+      }
+      const deliveryman = await usersRepository.findById(deliverymanId);
+      if (!deliveryman) throw new NotFoundError(`Deliveryman ${deliverymanId} not found`);
+      if (deliveryman.role !== 'DELIVERYMAN') throw new ValidationError('Deliveryman must have DELIVERYMAN role');
+    }
+
+    // Validar regras de cancelamento: só pode cancelar antes de IN_PROGRESS
+    if (nextStatus === 'CANCELLED' && delivery.status === 'IN_PROGRESS') {
+      throw new ValidationError('Cannot cancel a delivery that is already in progress');
+    }
+
+    const updated = await deliveriesRepository.updateStatus(id, nextStatus, deliverymanId);
+    await deliveryEventsPublisher.publishStatusChanged(updated, delivery.status, nextStatus);
+    if (nextStatus === 'ACCEPTED') {
+      await deliveryEventsPublisher.publishAccepted(updated);
+    }
+    return updated;
   },
 };

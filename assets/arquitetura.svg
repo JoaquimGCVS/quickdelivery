@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="620" viewBox="0 0 1180 620" role="img" aria-labelledby="title desc">
+  <title id="title">Arquitetura QuickDelivery</title>
+  <desc id="desc">Diagrama com aplicativos Flutter, API REST, autenticação, serviços, PostgreSQL e RabbitMQ.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#374151"/>
+    </marker>
+    <marker id="arrow-dashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6b7280"/>
+    </marker>
+    <style>
+      .canvas { fill: #ffffff; }
+      .group { fill: #f9fafb; stroke: #d1d5db; stroke-width: 2; rx: 14; }
+      .group-title { fill: #111827; font-family: Arial, sans-serif; font-size: 22px; font-weight: 700; }
+      .box { fill: #ffffff; stroke: #2563eb; stroke-width: 2; rx: 10; }
+      .box-green { stroke: #059669; }
+      .box-amber { stroke: #d97706; }
+      .box-purple { stroke: #7c3aed; }
+      .label { fill: #111827; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .small { fill: #374151; font-family: Arial, sans-serif; font-size: 15px; text-anchor: middle; }
+      .edge { fill: none; stroke: #374151; stroke-width: 2.2; marker-end: url(#arrow); }
+      .edge-dashed { fill: none; stroke: #6b7280; stroke-width: 2.2; stroke-dasharray: 8 6; marker-end: url(#arrow-dashed); }
+      .edge-label { fill: #374151; font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect class="canvas" x="0" y="0" width="1180" height="620"/>
+
+  <rect class="group" x="35" y="60" width="250" height="390"/>
+  <text class="group-title" x="160" y="100" text-anchor="middle">Aplicações Móveis</text>
+  <text class="small" x="160" y="126">Flutter</text>
+
+  <rect class="box" x="70" y="165" width="180" height="82"/>
+  <text class="label" x="160" y="198">Customer App</text>
+  <text class="small" x="160" y="224">cliente final</text>
+
+  <rect class="box" x="70" y="305" width="180" height="82"/>
+  <text class="label" x="160" y="338">Deliveryman App</text>
+  <text class="small" x="160" y="364">prestador</text>
+
+  <rect class="group" x="375" y="60" width="330" height="390"/>
+  <text class="group-title" x="540" y="100" text-anchor="middle">Backend</text>
+  <text class="small" x="540" y="126">Node.js + Express + TypeScript</text>
+
+  <rect class="box box-green" x="435" y="155" width="210" height="76"/>
+  <text class="label" x="540" y="184">REST API</text>
+  <text class="small" x="540" y="210">JSON + Bearer Token</text>
+
+  <rect class="box box-green" x="435" y="270" width="210" height="76"/>
+  <text class="label" x="540" y="299">Auth Middleware</text>
+  <text class="small" x="540" y="325">JWT + roles</text>
+
+  <rect class="box box-green" x="435" y="370" width="210" height="76"/>
+  <text class="label" x="540" y="399">Services</text>
+  <text class="small" x="540" y="425">regras de negócio</text>
+
+  <rect class="group" x="790" y="60" width="350" height="180"/>
+  <text class="group-title" x="965" y="100" text-anchor="middle">Persistência</text>
+  <rect class="box box-purple" x="850" y="135" width="230" height="78"/>
+  <text class="label" x="965" y="165">PostgreSQL 16</text>
+  <text class="small" x="965" y="191">Docker + Prisma ORM</text>
+
+  <rect class="group" x="790" y="300" width="350" height="150"/>
+  <text class="group-title" x="965" y="340" text-anchor="middle">Mensageria</text>
+  <rect class="box box-amber" x="850" y="368" width="230" height="58"/>
+  <text class="label" x="965" y="403">RabbitMQ</text>
+
+  <path class="edge" d="M250 206 C310 206 360 193 435 193"/>
+  <text class="edge-label" x="340" y="176">HTTPS REST</text>
+  <text class="edge-label" x="340" y="194">JSON + Bearer Token</text>
+
+  <path class="edge" d="M250 346 C310 346 360 193 435 193"/>
+  <text class="edge-label" x="337" y="308">HTTPS REST</text>
+
+  <path class="edge" d="M540 231 L540 270"/>
+  <path class="edge" d="M540 346 L540 370"/>
+
+  <path class="edge" d="M645 408 C710 408 740 174 850 174"/>
+  <text class="edge-label" x="765" y="258">TCP / SQL</text>
+  <text class="edge-label" x="765" y="276">via Prisma</text>
+
+  <path class="edge-dashed" d="M645 408 C720 408 760 397 850 397"/>
+  <text class="edge-label" x="748" y="386">AMQP publish</text>
+
+  <path class="edge-dashed" d="M850 397 C710 520 300 505 160 387"/>
+  <text class="edge-label" x="520" y="532">AMQP consume</text>
+
+  <path class="edge-dashed" d="M850 397 C660 565 270 515 160 247"/>
+  <text class="edge-label" x="348" y="558">AMQP consume</text>
+</svg>

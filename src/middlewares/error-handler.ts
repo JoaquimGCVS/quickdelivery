@@ -18,6 +18,18 @@ export class ValidationError extends AppError {
   }
 }
 
+export class UnauthorizedError extends AppError {
+  constructor(message: string = 'Unauthorized') {
+    super(401, message);
+  }
+}
+
+export class ForbiddenError extends AppError {
+  constructor(message: string = 'Forbidden') {
+    super(403, message);
+  }
+}
+
 export function errorHandler(
   err: Error,
   _req: Request,

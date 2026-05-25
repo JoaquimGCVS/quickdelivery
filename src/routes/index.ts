@@ -1,12 +1,14 @@
 import { Router } from 'express';
-import { clientsRoutes } from './clients.routes';
+import { authRouter } from './auth.routes';
+import { customersRouter } from './customers.routes';
+import { deliverymenRouter } from './deliverymen.routes';
 import { deliveriesRoutes } from './deliveries.routes';
-import { providersRoutes } from './providers.routes';
 
 const router = Router();
 
-router.use('/clients', clientsRoutes);
-router.use('/providers', providersRoutes);
+router.use('/auth', authRouter);
+router.use('/customers', customersRouter);
+router.use('/deliverymen', deliverymenRouter);
 router.use('/deliveries', deliveriesRoutes);
 
 export { router as apiRouter };
