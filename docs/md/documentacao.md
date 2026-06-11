@@ -14,7 +14,7 @@ O **QuickDelivery** é uma plataforma de entregas sob demanda que conecta dois p
 
 ### 1.3 Perfis de Usuário
 
-**Cliente.** Solicita entregas, lista suas próprias solicitações, acompanha status e pode cancelar uma entrega antes da execução.
+**Cliente.** Solicita entregas, lista suas próprias solicitações, acompanha status e pode cancelar uma entrega pendente ou aceita antes da execução.
 
 **Prestador de Serviços (entregador).** Visualiza entregas pendentes, aceita demandas, acompanha entregas atribuídas a ele e atualiza o status da execução.
 
@@ -25,13 +25,14 @@ O **QuickDelivery** é uma plataforma de entregas sob demanda que conecta dois p
 - Criar conta e autenticar.
 - Solicitar entrega com origem, destino e descrição.
 - Listar e consultar apenas suas próprias entregas.
-- Cancelar entrega permitida pela máquina de estados.
+- Cancelar entrega pendente ou aceita, conforme a máquina de estados.
 
 **Entregador**
 
 - Criar conta e autenticar.
 - Listar entregas pendentes.
 - Aceitar entrega usando seu próprio `deliverymanId`.
+- Cancelar entrega aceita atribuída a ele.
 - Atualizar status para `IN_PROGRESS` e `DELIVERED`.
 
 ## 2. Backend REST
@@ -49,9 +50,10 @@ O backend usa autenticação por token no padrão JWT assinado com HMAC SHA-256.
 Regras principais:
 
 - Cliente só cria entregas para si mesmo.
-- Cliente só lista, consulta e altera suas próprias entregas.
+- Cliente só lista, consulta e cancela suas próprias entregas.
 - Entregador vê entregas pendentes e entregas atribuídas a ele.
 - Entregador só pode aceitar entrega usando seu próprio `deliverymanId`.
+- Entregador só pode cancelar entregas aceitas atribuídas a ele.
 - Dados públicos de cliente/entregador não expõem senha.
 
 ## 4. Persistência

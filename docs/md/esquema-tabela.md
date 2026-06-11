@@ -47,7 +47,7 @@ Estados finais:
 - `DELIVERED`
 - `CANCELLED`
 
-Tentativas de transição inválida, como `DELIVERED -> ACCEPTED`, são rejeitadas pelo backend com HTTP `400`. O cancelamento é bloqueado quando a entrega já está em andamento.
+Tentativas de transição inválida, como `DELIVERED -> ACCEPTED`, são rejeitadas pelo backend com HTTP `400`. O cancelamento é permitido em `PENDING` pelo cliente dono da entrega e em `ACCEPTED` pelo cliente dono ou pelo entregador atribuído. O cancelamento é bloqueado quando a entrega já está em andamento.
 
 ## 4. Schema Físico
 

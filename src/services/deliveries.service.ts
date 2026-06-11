@@ -120,13 +120,24 @@ export const deliveriesService = {
       );
     }
 
-    // Validações de autorização
     if (userRole === 'CUSTOMER' && delivery.customerId !== authenticatedUserId) {
       throw new ForbiddenError('You can only modify your own deliveries');
     }
 
-    if (userRole === 'DELIVERYMAN' && delivery.deliverymanId && delivery.deliverymanId !== authenticatedUserId) {
+    if (userRole === 'CUSTOMER' && nextStatus !== 'CANCELLED') {
+      throw new ForbiddenError('Customers can only cancel their own deliveries');
+    }
+
+    if (
+      userRole === 'DELIVERYMAN' &&
+      nextStatus !== 'ACCEPTED' &&
+      delivery.deliverymanId !== authenticatedUserId
+    ) {
       throw new ForbiddenError('You can only modify deliveries assigned to you');
+    }
+
+    if (userRole !== 'CUSTOMER' && userRole !== 'DELIVERYMAN') {
+      throw new ForbiddenError('Invalid user role');
     }
 
     // Se tentando aceitar um pedido, deliverymanId é obrigatório
@@ -139,11 +150,6 @@ export const deliveriesService = {
       const deliveryman = await usersRepository.findById(deliverymanId);
       if (!deliveryman) throw new NotFoundError(`Deliveryman ${deliverymanId} not found`);
       if (deliveryman.role !== 'DELIVERYMAN') throw new ValidationError('Deliveryman must have DELIVERYMAN role');
-    }
-
-    // Validar regras de cancelamento: só pode cancelar antes de IN_PROGRESS
-    if (nextStatus === 'CANCELLED' && delivery.status === 'IN_PROGRESS') {
-      throw new ValidationError('Cannot cancel a delivery that is already in progress');
     }
 
     const updated = await deliveriesRepository.updateStatus(id, nextStatus, deliverymanId);

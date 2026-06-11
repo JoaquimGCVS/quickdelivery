@@ -151,7 +151,7 @@ O funcionamento da mensageria com RabbitMQ pode ser visto no vídeo:
 | `GET` | `/deliveries/:id` | Sim | Detalha entrega respeitando autorização por perfil. |
 | `PATCH` | `/deliveries/:id/status` | Sim | Atualiza status com validação de transição. |
 
-Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um entregador só pode aceitar entregas para si mesmo. Clientes só conseguem criar, listar e alterar entregas próprias.
+Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um entregador só pode aceitar entregas para si mesmo. Cancelamento é permitido em `PENDING` pelo cliente dono da entrega e em `ACCEPTED` pelo cliente dono ou pelo entregador atribuído. Entregas em `IN_PROGRESS`, `DELIVERED` ou `CANCELLED` não podem ser canceladas.
 
 ---
 
