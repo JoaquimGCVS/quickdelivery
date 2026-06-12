@@ -1,0 +1,14 @@
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+coverage/
+
+# Platform files can be regenerated with `flutter create .` if needed.
+android/
+ios/
+linux/
+macos/
+windows/
+web/
