@@ -71,7 +71,9 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(widget.controller.error ?? 'Não foi possível cancelar.')),
+        SnackBar(
+            content:
+                Text(widget.controller.error ?? 'Não foi possível cancelar.')),
       );
     }
   }
@@ -96,7 +98,8 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                 ? EmptyState(
                     icon: Icons.search_off,
                     title: 'Entrega não encontrada',
-                    message: _error ?? 'Não encontramos essa entrega no servidor.',
+                    message:
+                        _error ?? 'Não encontramos essa entrega no servidor.',
                     action: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       child: const Text('Voltar à lista'),
@@ -122,26 +125,8 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                StatusBadge(status: delivery.status, large: true),
-                                const SizedBox(height: 12),
-                                const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.refresh,
-                                      size: 14,
-                                      color: AppColors.mutedForeground,
-                                    ),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Esta tela atualiza automaticamente',
-                                      style: TextStyle(
-                                        color: AppColors.mutedForeground,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                StatusBadge(
+                                    status: delivery.status, large: true),
                               ],
                             ),
                           ),
@@ -167,7 +152,8 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                           child: delivery.deliverymanId == null
                               ? const Text(
                                   'Aguardando entregador',
-                                  style: TextStyle(color: AppColors.mutedForeground),
+                                  style: TextStyle(
+                                      color: AppColors.mutedForeground),
                                 )
                               : Row(
                                   children: [
@@ -183,10 +169,12 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            delivery.deliverymanId!,
+                                            delivery.deliveryman?.name ??
+                                                delivery.deliverymanId!,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
@@ -238,13 +226,15 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                                     Expanded(
                                       child: _DateColumn(
                                         label: 'Criação',
-                                        value: formatDateTime(delivery.createdAt),
+                                        value:
+                                            formatDateTime(delivery.createdAt),
                                       ),
                                     ),
                                     Expanded(
                                       child: _DateColumn(
                                         label: 'Última atualização',
-                                        value: formatDateTime(delivery.updatedAt),
+                                        value:
+                                            formatDateTime(delivery.updatedAt),
                                       ),
                                     ),
                                   ],
@@ -255,7 +245,8 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                         ),
                         const SizedBox(height: 22),
                         OutlinedButton.icon(
-                          onPressed: delivery.canCustomerCancel && !widget.controller.loading
+                          onPressed: delivery.canCustomerCancel &&
+                                  !widget.controller.loading
                               ? () => _cancel(delivery)
                               : null,
                           icon: const Icon(Icons.cancel_outlined),
@@ -264,7 +255,8 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                             foregroundColor: AppColors.destructive,
                             side: BorderSide(
                               color: delivery.canCustomerCancel
-                                  ? AppColors.destructive.withOpacity(0.35)
+                                  ? AppColors.destructive
+                                      .withValues(alpha: 0.35)
                                   : AppColors.border,
                             ),
                             minimumSize: const Size.fromHeight(52),

@@ -7,14 +7,16 @@ class DeliveriesService {
   final ApiClient _apiClient;
 
   Future<List<Delivery>> list({required String token}) async {
-    final data = await _apiClient.get('/deliveries', token: token) as List<dynamic>;
+    final data =
+        await _apiClient.get('/deliveries', token: token) as List<dynamic>;
     return data
         .map((item) => Delivery.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 
   Future<Delivery> findById(String id, {required String token}) async {
-    final data = await _apiClient.get('/deliveries/$id', token: token) as Map<String, dynamic>;
+    final data = await _apiClient.get('/deliveries/$id', token: token)
+        as Map<String, dynamic>;
     return Delivery.fromJson(data);
   }
 

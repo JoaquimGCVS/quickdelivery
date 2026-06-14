@@ -2,7 +2,6 @@ import { NotFoundError, ValidationError, ForbiddenError } from '../middlewares/e
 import { usersRepository } from '../repositories/users.repository';
 import { deliveriesRepository } from '../repositories/deliveries.repository';
 import { DeliveryStatus, canTransition, isDeliveryStatus } from '../types/delivery-status';
-import { prismaClient } from '../infrastructure/prisma';
 import { deliveryEventsPublisher } from '../events/delivery-events.publisher';
 
 function requireString(value: unknown, field: string): string {
@@ -78,25 +77,14 @@ export const deliveriesService = {
       if (status) {
         if (status === 'PENDING') {
           // Ver apenas PENDING
-          return prismaClient.delivery.findMany({
-            where: { status: 'PENDING' },
-            orderBy: { createdAt: 'desc' },
-          });
+          return deliveriesRepository.findPending();
         } else {
           // Ver status específico apenas de suas entregas aceitas
           return deliveriesRepository.findMany({ status, deliverymanId: authenticatedUserId });
         }
       }
       // Sem filtro: vê PENDING + suas entregas aceitas
-      return prismaClient.delivery.findMany({
-        where: {
-          OR: [
-            { status: 'PENDING' },
-            { deliverymanId: authenticatedUserId },
-          ],
-        },
-        orderBy: { createdAt: 'desc' },
-      });
+      return deliveriesRepository.findPendingOrAssigned(authenticatedUserId);
     }
 
     return [];

@@ -1,5 +1,5 @@
-name: quickdelivery_customer_app
-description: QuickDelivery customer Flutter app for Sprint 3.
+name: quickdelivery_app
+description: QuickDelivery Flutter app for customers and deliverymen.
 publish_to: "none"
 
 version: 0.1.0+1

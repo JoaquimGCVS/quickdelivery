@@ -16,11 +16,11 @@ void main() {
     deliveriesService: DeliveriesService(apiClient),
   );
 
-  runApp(QuickDeliveryCustomerApp(controller: controller));
+  runApp(QuickDeliveryApp(controller: controller));
 }
 
-class QuickDeliveryCustomerApp extends StatelessWidget {
-  const QuickDeliveryCustomerApp({
+class QuickDeliveryApp extends StatelessWidget {
+  const QuickDeliveryApp({
     super.key,
     required this.controller,
   });
@@ -30,7 +30,7 @@ class QuickDeliveryCustomerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'QuickDelivery Cliente',
+      title: 'QuickDelivery',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       home: AppShell(

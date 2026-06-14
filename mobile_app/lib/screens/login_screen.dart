@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../controllers/app_controller.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_shell.dart';
+import 'deliveryman_home_screen.dart';
 import 'deliveries_list_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,10 +38,13 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
       if (!mounted) return;
+      final nextScreen = widget.controller.session?.user.role == 'DELIVERYMAN'
+          ? DeliverymanHomeScreen(controller: widget.controller)
+          : DeliveriesListScreen(controller: widget.controller);
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => AppShell(
-            child: DeliveriesListScreen(controller: widget.controller),
+            child: nextScreen,
           ),
         ),
       );
@@ -75,7 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(22),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withOpacity(0.18),
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.18),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -100,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Acompanhe suas entregas em tempo real',
+                        'Acesse como cliente ou entregador',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.mutedForeground,
@@ -142,10 +147,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.destructive.withOpacity(0.06),
+                            color:
+                                AppColors.destructive.withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: AppColors.destructive.withOpacity(0.25),
+                              color:
+                                  AppColors.destructive.withValues(alpha: 0.25),
                             ),
                           ),
                           child: Text(

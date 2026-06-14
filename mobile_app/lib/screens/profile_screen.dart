@@ -15,7 +15,8 @@ class ProfileScreen extends StatelessWidget {
     final confirmed = await showConfirmDialog(
       context: context,
       title: 'Sair da conta?',
-      message: 'Você precisará fazer login novamente para acompanhar suas entregas.',
+      message:
+          'Você precisará fazer login novamente para acompanhar suas entregas.',
       confirmLabel: 'Sair',
     );
     if (!confirmed || !context.mounted) return;
@@ -133,7 +134,9 @@ class ProfileScreen extends StatelessWidget {
               label: const Text('Sair'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.destructive,
-                side: BorderSide(color: AppColors.destructive.withOpacity(0.35)),
+                side: BorderSide(
+                  color: AppColors.destructive.withValues(alpha: 0.35),
+                ),
                 minimumSize: const Size.fromHeight(52),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -168,7 +171,7 @@ class _InfoRow extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.10),
+              color: AppColors.secondary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 18, color: AppColors.primary),

@@ -81,7 +81,8 @@ class _DeliveriesListScreenState extends State<DeliveriesListScreen> {
       animation: widget.controller,
       builder: (context, _) {
         final deliveries = widget.controller.deliveries;
-        final showInitialLoading = widget.controller.loading && deliveries.isEmpty;
+        final showInitialLoading =
+            widget.controller.loading && deliveries.isEmpty;
         final showError = widget.controller.error != null && deliveries.isEmpty;
 
         return Scaffold(
@@ -115,21 +116,26 @@ class _DeliveriesListScreenState extends State<DeliveriesListScreen> {
                           ),
                           _RoundIconButton(
                             icon: Icons.refresh,
-                            onPressed: () => widget.controller.refreshDeliveries(),
-                            spinning: widget.controller.loading,
+                            onPressed: () =>
+                                widget.controller.refreshDeliveries(),
                           ),
                           const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: _openProfile,
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundColor: AppColors.primary,
-                              child: Text(
-                                _initials(widget.controller.session?.user.name ?? 'Cliente'),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: _openProfile,
+                              child: CircleAvatar(
+                                radius: 20,
+                                backgroundColor: AppColors.primary,
+                                child: Text(
+                                  _initials(
+                                      widget.controller.session?.user.name ??
+                                          'Cliente'),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
                               ),
                             ),
@@ -158,7 +164,8 @@ class _DeliveriesListScreenState extends State<DeliveriesListScreen> {
                                     title: 'Não foi possível carregar',
                                     message: widget.controller.error!,
                                     action: OutlinedButton(
-                                      onPressed: () => widget.controller.refreshDeliveries(),
+                                      onPressed: () =>
+                                          widget.controller.refreshDeliveries(),
                                       child: const Text('Tentar novamente'),
                                     ),
                                   ),
@@ -175,15 +182,18 @@ class _DeliveriesListScreenState extends State<DeliveriesListScreen> {
                                         action: ElevatedButton.icon(
                                           onPressed: _openCreate,
                                           icon: const Icon(Icons.add),
-                                          label: const Text('Criar primeira entrega'),
+                                          label: const Text(
+                                              'Criar primeira entrega'),
                                         ),
                                       ),
                                     ],
                                   )
                                 : ListView.separated(
-                                    padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        24, 4, 24, 28),
                                     itemCount: deliveries.length,
-                                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                                    separatorBuilder: (_, __) =>
+                                        const SizedBox(height: 12),
                                     itemBuilder: (context, index) {
                                       final delivery = deliveries[index];
                                       return _DeliveryCard(
@@ -217,6 +227,7 @@ class _DeliveryCard extends StatelessWidget {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
+        mouseCursor: SystemMouseCursors.click,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -322,34 +333,42 @@ class _AddressRow extends StatelessWidget {
   }
 }
 
-class _RoundIconButton extends StatelessWidget {
+class _RoundIconButton extends StatefulWidget {
   const _RoundIconButton({
     required this.icon,
     required this.onPressed,
-    this.spinning = false,
   });
 
   final IconData icon;
   final VoidCallback onPressed;
-  final bool spinning;
+
+  @override
+  State<_RoundIconButton> createState() => _RoundIconButtonState();
+}
+
+class _RoundIconButtonState extends State<_RoundIconButton> {
+  double _turns = 0;
+
+  void _handlePressed() {
+    setState(() => _turns += 1);
+    widget.onPressed();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final child = Icon(icon, size: 19);
     return Material(
       color: AppColors.card,
       shape: const CircleBorder(
         side: BorderSide(color: AppColors.border),
       ),
       child: IconButton(
-        onPressed: onPressed,
-        icon: spinning
-            ? const SizedBox(
-                width: 19,
-                height: 19,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : child,
+        onPressed: _handlePressed,
+        icon: AnimatedRotation(
+          turns: _turns,
+          duration: const Duration(milliseconds: 450),
+          curve: Curves.easeOutCubic,
+          child: Icon(widget.icon, size: 19),
+        ),
         color: AppColors.mutedForeground,
       ),
     );
@@ -378,7 +397,11 @@ class _AutoRefreshLabel extends StatelessWidget {
 }
 
 String _initials(String name) {
-  final parts = name.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+  final parts = name
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty)
+      .toList();
   if (parts.isEmpty) return 'CL';
   return parts.take(2).map((part) => part[0].toUpperCase()).join();
 }

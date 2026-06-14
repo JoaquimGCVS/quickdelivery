@@ -21,11 +21,13 @@ class ApiClient {
     return _send('GET', path, token: token);
   }
 
-  Future<dynamic> post(String path, Map<String, dynamic> body, {String? token}) {
+  Future<dynamic> post(String path, Map<String, dynamic> body,
+      {String? token}) {
     return _send('POST', path, body: body, token: token);
   }
 
-  Future<dynamic> patch(String path, Map<String, dynamic> body, {String? token}) {
+  Future<dynamic> patch(String path, Map<String, dynamic> body,
+      {String? token}) {
     return _send('PATCH', path, body: body, token: token);
   }
 
@@ -50,10 +52,12 @@ class ApiClient {
           response = await _httpClient.get(uri, headers: headers);
           break;
         case 'POST':
-          response = await _httpClient.post(uri, headers: headers, body: encodedBody);
+          response =
+              await _httpClient.post(uri, headers: headers, body: encodedBody);
           break;
         case 'PATCH':
-          response = await _httpClient.patch(uri, headers: headers, body: encodedBody);
+          response =
+              await _httpClient.patch(uri, headers: headers, body: encodedBody);
           break;
         default:
           throw ArgumentError('Unsupported method $method');

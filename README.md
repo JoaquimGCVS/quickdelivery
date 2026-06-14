@@ -170,14 +170,14 @@ Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um ent
 
 ---
 
-## App Flutter Cliente
+## App Flutter
 
-O código-fonte do app cliente da Sprint 3 está em `apps/customer_app`.
+O código-fonte do app Flutter unificado está em `mobile_app`.
 
 Em uma máquina com Flutter instalado:
 
 ```bash
-cd apps/customer_app
+cd mobile_app
 flutter create .
 flutter pub get
 flutter run --dart-define=QUICKDELIVERY_API_URL=http://10.0.2.2:3000
@@ -185,7 +185,7 @@ flutter run --dart-define=QUICKDELIVERY_API_URL=http://10.0.2.2:3000
 
 Use `http://10.0.2.2:3000` para emulador Android. Em dispositivo físico, use o IP da máquina que está rodando o backend.
 
-O app possui login de cliente, listagem, criação, detalhe, cancelamento, perfil/logout e polling automático a cada 30 segundos.
+O app possui login para cliente e entregador. Para cliente, possui listagem, criação, detalhe, cancelamento, perfil/logout e polling automático a cada 30 segundos. Para entregador, possui uma tela inicial simples, deixando o fluxo completo para a Sprint 4.
 
 ---
 
@@ -194,7 +194,7 @@ O app possui login de cliente, listagem, criação, detalhe, cancelamento, perfi
 ```text
 delivery-back/
 ├── apps/
-│   └── customer_app/            # App Flutter do cliente
+├── mobile_app/                  # App Flutter unificado
 ├── docker-compose.yml
 ├── prisma/
 │   ├── schema.prisma            # Modelo User e Delivery

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/app_controller.dart';
-import '../models/delivery.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_shell.dart';
 import 'delivery_detail_screen.dart';

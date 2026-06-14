@@ -31,12 +31,12 @@
   <text class="small" x="160" y="126">Flutter</text>
 
   <rect class="box" x="70" y="165" width="180" height="82"/>
-  <text class="label" x="160" y="198">Customer App</text>
-  <text class="small" x="160" y="224">cliente final</text>
+  <text class="label" x="160" y="198">QuickDelivery App</text>
+  <text class="small" x="160" y="224">login CUSTOMER</text>
 
   <rect class="box" x="70" y="305" width="180" height="82"/>
-  <text class="label" x="160" y="338">Deliveryman App</text>
-  <text class="small" x="160" y="364">prestador</text>
+  <text class="label" x="160" y="338">QuickDelivery App</text>
+  <text class="small" x="160" y="364">login DELIVERYMAN</text>
 
   <rect class="group" x="375" y="60" width="330" height="390"/>
   <text class="group-title" x="540" y="100" text-anchor="middle">Backend</text>

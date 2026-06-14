@@ -6,6 +6,32 @@ enum DeliveryStatus {
   cancelled,
 }
 
+class DeliveryUser {
+  const DeliveryUser({
+    required this.id,
+    required this.email,
+    required this.name,
+    required this.phone,
+    required this.role,
+  });
+
+  final String id;
+  final String email;
+  final String name;
+  final String phone;
+  final String role;
+
+  factory DeliveryUser.fromJson(Map<String, dynamic> json) {
+    return DeliveryUser(
+      id: json['id'] as String,
+      email: json['email'] as String,
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+      role: json['role'] as String,
+    );
+  }
+}
+
 class Delivery {
   const Delivery({
     required this.id,
@@ -16,12 +42,16 @@ class Delivery {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    this.customer,
     this.deliverymanId,
+    this.deliveryman,
   });
 
   final String id;
   final String customerId;
+  final DeliveryUser? customer;
   final String? deliverymanId;
+  final DeliveryUser? deliveryman;
   final String pickupAddress;
   final String dropoffAddress;
   final String description;
@@ -30,18 +60,22 @@ class Delivery {
   final DateTime updatedAt;
 
   bool get canCustomerCancel {
-    return status == DeliveryStatus.pending || status == DeliveryStatus.accepted;
+    return status == DeliveryStatus.pending ||
+        status == DeliveryStatus.accepted;
   }
 
   bool get isFinal {
-    return status == DeliveryStatus.delivered || status == DeliveryStatus.cancelled;
+    return status == DeliveryStatus.delivered ||
+        status == DeliveryStatus.cancelled;
   }
 
   factory Delivery.fromJson(Map<String, dynamic> json) {
     return Delivery(
       id: json['id'] as String,
       customerId: json['customerId'] as String,
+      customer: _optionalUser(json['customer']),
       deliverymanId: json['deliverymanId'] as String?,
+      deliveryman: _optionalUser(json['deliveryman']),
       pickupAddress: json['pickupAddress'] as String,
       dropoffAddress: json['dropoffAddress'] as String,
       description: json['description'] as String,
@@ -50,6 +84,13 @@ class Delivery {
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
+}
+
+DeliveryUser? _optionalUser(Object? value) {
+  if (value is Map<String, dynamic>) {
+    return DeliveryUser.fromJson(value);
+  }
+  return null;
 }
 
 DeliveryStatus deliveryStatusFromApi(String value) {

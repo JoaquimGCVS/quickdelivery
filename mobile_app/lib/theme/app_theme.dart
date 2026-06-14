@@ -39,7 +39,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.card,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.border),
@@ -59,8 +60,26 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           minimumSize: const Size.fromHeight(52),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ).copyWith(
+          mouseCursor: const WidgetStatePropertyAll(SystemMouseCursors.click),
+        ),
+      ),
+      outlinedButtonTheme: const OutlinedButtonThemeData(
+        style: ButtonStyle(
+          mouseCursor: WidgetStatePropertyAll(SystemMouseCursors.click),
+        ),
+      ),
+      textButtonTheme: const TextButtonThemeData(
+        style: ButtonStyle(
+          mouseCursor: WidgetStatePropertyAll(SystemMouseCursors.click),
+        ),
+      ),
+      iconButtonTheme: const IconButtonThemeData(
+        style: ButtonStyle(
+          mouseCursor: WidgetStatePropertyAll(SystemMouseCursors.click),
         ),
       ),
       cardTheme: CardThemeData(

@@ -29,7 +29,9 @@ class AppController extends ChangeNotifier {
 
   String get _token {
     final token = _session?.token;
-    if (token == null) throw const ApiException('Sessão expirada. Faça login novamente.');
+    if (token == null) {
+      throw const ApiException('Sessão expirada. Faça login novamente.');
+    }
     return token;
   }
 
