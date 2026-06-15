@@ -137,6 +137,9 @@ O funcionamento da mensageria com RabbitMQ pode ser visto no vídeo:
 - [Arquivo local](assets/video-mensageria.webm)
 - [YouTube](https://www.youtube.com/watch?v=EBn9ehJyqDc)
 
+Vídeo da Sprint 3:
+- [YouTube](https://www.youtube.com/watch?v=T8alAklyMw8)
+
 ---
 
 ## Endpoints
