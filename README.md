@@ -130,10 +130,10 @@ quickdelivery / quickdelivery
 
 A exchange usada é `quickdelivery.events` e a fila consumida é `quickdelivery.delivery-events`.
 
-### 10. Vídeo da mensageria
+### 10. Vídeos
 
-O funcionamento da mensageria com RabbitMQ pode ser visto no vídeo:
 
+Vídeo da Sprint 4:
 - [Arquivo local](assets/video-mensageria.webm)
 - [YouTube](https://www.youtube.com/watch?v=EBn9ehJyqDc)
 
