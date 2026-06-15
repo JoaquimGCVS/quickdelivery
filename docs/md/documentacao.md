@@ -64,13 +64,29 @@ O schema Prisma usa PostgreSQL e contém as tabelas `users` e `deliveries`. A ta
 
 O backend publica eventos no RabbitMQ após operações importantes do ciclo de entregas. Ao criar uma entrega, publica `delivery.created`; ao aceitar uma entrega, publica `delivery.accepted`; e a cada mudança de status publica `delivery.status_changed`. Um consumidor de exemplo lê a fila `quickdelivery.delivery-events` para demonstrar o processamento assíncrono sem chamada REST direta.
 
-## 6. Organização do Código
+## 6. App Flutter do Cliente
 
-<div style="page-break-after: always;"></div>
+O cliente autentica com `POST /auth/login`, lista suas entregas com `GET /deliveries`, cria nova solicitação com `POST /deliveries`, consulta detalhes com `GET /deliveries/:id` e cancela entregas permitidas com `PATCH /deliveries/:id/status`.
+
+As telas principais do cliente são:
+
+- Login.
+- Minhas Entregas.
+- Nova Entrega.
+- Detalhes da Entrega.
+- Perfil.
+
+A atualização assíncrona do cliente usa polling automático a cada 15 segundos na lista e na tela de detalhe. Assim, mudanças feitas no backend, como aceite por entregador ou mudança de status, aparecem sem exigir que o cliente aperte o botão de atualizar. O botão manual e o pull-to-refresh continuam disponíveis como conveniência.
+
+O mesmo app também permite login de usuário `DELIVERYMAN`, mas neste momento exibe apenas uma tela inicial simples para o entregador.
+
+## 7. Organização do Código
 
 O backend mantém separação em camadas. As rotas mapeiam verbos e URLs para os controllers, os controllers lidam com req e res e delegam a regra de negócio para os services, os services concentram validações, autorização e máquina de estados, os repositories encapsulam o acesso ao Prisma, os middlewares cuidam de autenticação e tratamento centralizado de erros, e os types concentram tipos compartilhados de usuário e status de entrega.
 
-## 7. Validação via Postman
+No app Flutter, a separação é feita por `models`, `services`, `controllers`, `screens`, `widgets`, `theme`, `utils` e `config`. O `ApiClient` centraliza HTTP, token Bearer e JSON; os services expõem operações de autenticação e entregas; o `AppController` mantém sessão, lista de entregas, loading e erros; e as telas cuidam de navegação, formulários e apresentação.
+
+## 8. Validação via Postman
 
 A coleção `postman/QuickDelivery.postman_collection.json` cobre o fluxo autenticado. Antes de executá-la, é necessário rodar:
 

@@ -33,7 +33,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   void initState() {
     super.initState();
     _load(silent: true);
-    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+    _timer = Timer.periodic(const Duration(seconds: 15), (_) {
       final delivery = widget.controller.deliveryById(widget.deliveryId);
       if (delivery == null || !delivery.isFinal) {
         _load(silent: true);

@@ -31,8 +31,7 @@ Eventos publicados:
 Fluxo da mensagem:
 
 ```text
-Backend REST -> Exchange quickdelivery.events -> Fila quickdelivery.delivery-
-events -> Consumer
+Backend REST -> Exchange quickdelivery.events -> Fila quickdelivery.delivery-events -> Consumer
 ```
 
 ## 4. Como a Integração Foi Feita
@@ -70,3 +69,5 @@ O terminal do consumidor mostra os eventos recebidos após as ações executadas
 <p align="center">Logs do consumer recebendo eventos</p>
 
 Os logs comprovam que o backend publicou eventos no RabbitMQ e que outro processo consumiu essas mensagens pela fila, sem chamada REST direta entre eles.
+
+Na Sprint 3, o aplicativo Flutter do cliente não consome diretamente o RabbitMQ. Ele reflete as mudanças de estado por polling periódico na API REST, para atualização assíncrona do app cliente. O RabbitMQ continua responsável pela publicação e consumo de eventos no backend.
