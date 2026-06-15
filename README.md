@@ -89,6 +89,12 @@ Para acompanhar os eventos de entrega publicados no RabbitMQ, rode em outro term
 npm run consumer:deliveries
 ```
 
+Para parar a API, use `Ctrl+C` no terminal em que `npm run dev` está rodando. Para parar PostgreSQL e RabbitMQ:
+
+```bash
+docker compose down
+```
+
 ### 8. Testar no Postman
 
 Importe `postman/QuickDelivery.postman_collection.json` e execute as requisições em ordem. O fluxo principal é: login do cliente -> login do entregador -> criar entrega -> aceitar -> marcar em andamento -> marcar como entregue.
@@ -151,7 +157,7 @@ O funcionamento da mensageria com RabbitMQ pode ser visto no vídeo:
 | `GET` | `/deliveries/:id` | Sim | Detalha entrega respeitando autorização por perfil. |
 | `PATCH` | `/deliveries/:id/status` | Sim | Atualiza status com validação de transição. |
 
-Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um entregador só pode aceitar entregas para si mesmo. Clientes só conseguem criar, listar e alterar entregas próprias.
+Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um entregador só pode aceitar entregas para si mesmo. Cancelamento é permitido em `PENDING` pelo cliente dono da entrega e em `ACCEPTED` pelo cliente dono ou pelo entregador atribuído. Entregas em `IN_PROGRESS`, `DELIVERED` ou `CANCELLED` não podem ser canceladas.
 
 ---
 
@@ -170,10 +176,42 @@ Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um ent
 
 ---
 
+## App Flutter
+
+O código-fonte do app Flutter unificado está em `mobile_app`. A Sprint 3 entrega o fluxo do cliente: login, listagem das próprias entregas, criação de entrega, tela de detalhes, cancelamento quando permitido e atualização automática por polling a cada 15 segundos. O login de entregador já existe e abre uma tela inicial simples, preparando o fluxo completo do prestador para a Sprint 4.
+
+Em uma máquina com Flutter instalado, se os diretórios de plataforma ainda não existirem, gere-os uma vez:
+
+```bash
+cd mobile_app
+flutter create .
+flutter pub get
+```
+
+Para executar no emulador Android:
+
+```bash
+flutter emulators --launch Pixel_7
+flutter run --dart-define=QUICKDELIVERY_API_URL=http://10.0.2.2:3000
+```
+
+Use `http://10.0.2.2:3000` para emulador Android. Em dispositivo físico, use o IP da máquina que está rodando o backend.
+
+Se o app já estiver instalado no emulador e o código não tiver mudado, basta iniciar o emulador e abrir o ícone do QuickDelivery.
+
+Para desligar o emulador pelo terminal:
+
+```bash
+/home/joaquimvilela/Android/Sdk/platform-tools/adb -s emulator-5554 emu kill
+```
+
+---
+
 ## Estrutura do Projeto
 
 ```text
-delivery-back/
+quickdelivery/
+├── mobile_app/                  # App Flutter unificado
 ├── docker-compose.yml
 ├── prisma/
 │   ├── schema.prisma            # Modelo User e Delivery

@@ -5,7 +5,7 @@ export { DeliveryStatus };
 const ALLOWED_TRANSITIONS: Record<DeliveryStatus, DeliveryStatus[]> = {
   PENDING: ['ACCEPTED', 'CANCELLED'],
   ACCEPTED: ['IN_PROGRESS', 'CANCELLED'],
-  IN_PROGRESS: ['DELIVERED', 'CANCELLED'],
+  IN_PROGRESS: ['DELIVERED'],
   DELIVERED: [],
   CANCELLED: [],
 };
