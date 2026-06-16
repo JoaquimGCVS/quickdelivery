@@ -133,7 +133,7 @@ A exchange usada é `quickdelivery.events` e a fila consumida é `quickdelivery.
 ### 10. Vídeos
 
 
-Vídeo da Sprint 4:
+Vídeo da Sprint 2:
 - [Arquivo local](assets/video-mensageria.webm)
 - [YouTube](https://www.youtube.com/watch?v=EBn9ehJyqDc)
 
