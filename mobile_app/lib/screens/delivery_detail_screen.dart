@@ -33,7 +33,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   void initState() {
     super.initState();
     _load(silent: true);
-    _timer = Timer.periodic(const Duration(seconds: 15), (_) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       final delivery = widget.controller.deliveryById(widget.deliveryId);
       if (delivery == null || !delivery.isFinal) {
         _load(silent: true);
@@ -74,6 +74,39 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
         SnackBar(
             content:
                 Text(widget.controller.error ?? 'Não foi possível cancelar.')),
+      );
+    }
+  }
+
+  Future<void> _accept(Delivery delivery) async {
+    await _runDeliverymanAction(() {
+      return widget.controller.acceptDelivery(delivery.id);
+    });
+  }
+
+  Future<void> _start(Delivery delivery) async {
+    await _runDeliverymanAction(() {
+      return widget.controller.startDelivery(delivery.id);
+    });
+  }
+
+  Future<void> _complete(Delivery delivery) async {
+    await _runDeliverymanAction(() {
+      return widget.controller.completeDelivery(delivery.id);
+    });
+  }
+
+  Future<void> _runDeliverymanAction(Future<Delivery> Function() action) async {
+    try {
+      await action();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.controller.error ?? 'Não foi possível atualizar a entrega.',
+          ),
+        ),
       );
     }
   }
@@ -244,45 +277,168 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                           ),
                         ),
                         const SizedBox(height: 22),
-                        OutlinedButton.icon(
-                          onPressed: delivery.canCustomerCancel &&
-                                  !widget.controller.loading
-                              ? () => _cancel(delivery)
-                              : null,
-                          icon: const Icon(Icons.cancel_outlined),
-                          label: const Text('Cancelar entrega'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.destructive,
-                            side: BorderSide(
-                              color: delivery.canCustomerCancel
-                                  ? AppColors.destructive
-                                      .withValues(alpha: 0.35)
-                                  : AppColors.border,
-                            ),
-                            minimumSize: const Size.fromHeight(52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
+                        _DeliveryActions(
+                          delivery: delivery,
+                          isCustomer: widget.controller.isCustomer,
+                          isDeliveryman: widget.controller.isDeliveryman,
+                          loading: widget.controller.loading,
+                          onCancel: () => _cancel(delivery),
+                          onAccept: () => _accept(delivery),
+                          onStart: () => _start(delivery),
+                          onComplete: () => _complete(delivery),
                         ),
-                        if (!delivery.canCustomerCancel)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Text(
-                              _cannotCancelMessage(delivery.status),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: AppColors.mutedForeground,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
                       ],
                     ),
                   ),
           ),
         );
       },
+    );
+  }
+}
+
+class _DeliveryActions extends StatelessWidget {
+  const _DeliveryActions({
+    required this.delivery,
+    required this.isCustomer,
+    required this.isDeliveryman,
+    required this.loading,
+    required this.onCancel,
+    required this.onAccept,
+    required this.onStart,
+    required this.onComplete,
+  });
+
+  final Delivery delivery;
+  final bool isCustomer;
+  final bool isDeliveryman;
+  final bool loading;
+  final VoidCallback onCancel;
+  final VoidCallback onAccept;
+  final VoidCallback onStart;
+  final VoidCallback onComplete;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isDeliveryman) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (delivery.status == DeliveryStatus.pending)
+            _PrimaryDeliveryButton(
+              icon: Icons.check_circle_outline,
+              label: 'Aceitar entrega',
+              loading: loading,
+              onPressed: onAccept,
+            ),
+          if (delivery.status == DeliveryStatus.accepted) ...[
+            _PrimaryDeliveryButton(
+              icon: Icons.play_circle_outline,
+              label: 'Iniciar entrega',
+              loading: loading,
+              onPressed: onStart,
+            ),
+            const SizedBox(height: 10),
+            _CancelDeliveryButton(
+              enabled: !loading,
+              onPressed: onCancel,
+            ),
+          ],
+          if (delivery.status == DeliveryStatus.inProgress)
+            _PrimaryDeliveryButton(
+              icon: Icons.task_alt,
+              label: 'Concluir entrega',
+              loading: loading,
+              onPressed: onComplete,
+            ),
+          if (delivery.status == DeliveryStatus.delivered ||
+              delivery.status == DeliveryStatus.cancelled)
+            Text(
+              _finalMessage(delivery.status),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.mutedForeground,
+                fontSize: 12,
+              ),
+            ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _CancelDeliveryButton(
+          enabled: delivery.canCustomerCancel && !loading,
+          onPressed: onCancel,
+        ),
+        if (!delivery.canCustomerCancel)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              _cannotCancelMessage(delivery.status),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.mutedForeground,
+                fontSize: 12,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _PrimaryDeliveryButton extends StatelessWidget {
+  const _PrimaryDeliveryButton({
+    required this.icon,
+    required this.label,
+    required this.loading,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool loading;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: loading ? null : onPressed,
+      icon: Icon(icon),
+      label: Text(label),
+    );
+  }
+}
+
+class _CancelDeliveryButton extends StatelessWidget {
+  const _CancelDeliveryButton({
+    required this.enabled,
+    required this.onPressed,
+  });
+
+  final bool enabled;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: enabled ? onPressed : null,
+      icon: const Icon(Icons.cancel_outlined),
+      label: const Text('Cancelar entrega'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.destructive,
+        side: BorderSide(
+          color: enabled
+              ? AppColors.destructive.withValues(alpha: 0.35)
+              : AppColors.border,
+        ),
+        minimumSize: const Size.fromHeight(52),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+      ),
     );
   }
 }
@@ -332,6 +488,19 @@ String _cannotCancelMessage(DeliveryStatus status) {
       return 'Esta entrega já foi cancelada.';
     case DeliveryStatus.pending:
     case DeliveryStatus.accepted:
+      return '';
+  }
+}
+
+String _finalMessage(DeliveryStatus status) {
+  switch (status) {
+    case DeliveryStatus.delivered:
+      return 'Entrega concluída.';
+    case DeliveryStatus.cancelled:
+      return 'Entrega cancelada.';
+    case DeliveryStatus.pending:
+    case DeliveryStatus.accepted:
+    case DeliveryStatus.inProgress:
       return '';
   }
 }

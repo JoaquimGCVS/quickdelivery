@@ -35,6 +35,10 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = controller.session!.user;
+    final isDeliveryman = user.role == 'DELIVERYMAN';
+    final accountTitle =
+        isDeliveryman ? 'Entregador QuickDelivery' : 'Cliente QuickDelivery';
+    final accountType = isDeliveryman ? 'Entregador' : 'Cliente';
     final initials = user.name
         .split(RegExp(r'\s+'))
         .where((part) => part.isNotEmpty)
@@ -78,9 +82,9 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Cliente QuickDelivery',
-                  style: TextStyle(
+                Text(
+                  accountTitle,
+                  style: const TextStyle(
                     color: AppColors.mutedForeground,
                     fontSize: 13,
                   ),
@@ -109,10 +113,10 @@ class ProfileScreen extends StatelessWidget {
                     value: user.phone,
                   ),
                   const Divider(height: 1),
-                  const _InfoRow(
+                  _InfoRow(
                     icon: Icons.verified_user_outlined,
                     label: 'Tipo de conta',
-                    value: 'Cliente',
+                    value: accountType,
                   ),
                 ],
               ),

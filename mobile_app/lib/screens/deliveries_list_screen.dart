@@ -29,7 +29,7 @@ class _DeliveriesListScreenState extends State<DeliveriesListScreen> {
   void initState() {
     super.initState();
     widget.controller.refreshDeliveries(silent: true);
-    _timer = Timer.periodic(const Duration(seconds: 15), (_) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (widget.controller.isAuthenticated) {
         widget.controller.refreshDeliveries(silent: true);
       }
