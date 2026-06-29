@@ -26,6 +26,8 @@ class AppController extends ChangeNotifier {
   List<Delivery> get deliveries => _deliveries;
   bool get loading => _loading;
   String? get error => _error;
+  bool get isCustomer => _session?.user.role == 'CUSTOMER';
+  bool get isDeliveryman => _session?.user.role == 'DELIVERYMAN';
 
   String get _token {
     final token = _session?.token;
@@ -56,10 +58,16 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> refreshDeliveries({bool silent = false}) async {
+  Future<void> refreshDeliveries({
+    bool silent = false,
+    DeliveryStatus? status,
+  }) async {
     if (!silent) _setLoading(true);
     try {
-      final list = await _deliveriesService.list(token: _token);
+      final list = await _deliveriesService.list(
+        token: _token,
+        status: status,
+      );
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       _deliveries = list;
       _error = null;
@@ -130,6 +138,38 @@ class AppController extends ChangeNotifier {
     }
   }
 
+  Future<Delivery> acceptDelivery(String id) async {
+    _setLoading(true);
+    try {
+      final user = _session!.user;
+      final delivery = await _deliveriesService.accept(
+        id,
+        token: _token,
+        deliverymanId: user.id,
+      );
+      _upsertDelivery(delivery);
+      _error = null;
+      return delivery;
+    } catch (err) {
+      _error = _messageFor(err);
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<Delivery> startDelivery(String id) async {
+    return _changeDeliveryStatus(id, (token) {
+      return _deliveriesService.start(id, token: token);
+    });
+  }
+
+  Future<Delivery> completeDelivery(String id) async {
+    return _changeDeliveryStatus(id, (token) {
+      return _deliveriesService.deliver(id, token: token);
+    });
+  }
+
   Delivery? deliveryById(String id) {
     for (final delivery in _deliveries) {
       if (delivery.id == id) return delivery;
@@ -147,6 +187,24 @@ class AppController extends ChangeNotifier {
       _deliveries = next;
     }
     notifyListeners();
+  }
+
+  Future<Delivery> _changeDeliveryStatus(
+    String id,
+    Future<Delivery> Function(String token) action,
+  ) async {
+    _setLoading(true);
+    try {
+      final delivery = await action(_token);
+      _upsertDelivery(delivery);
+      _error = null;
+      return delivery;
+    } catch (err) {
+      _error = _messageFor(err);
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
   }
 
   void _setLoading(bool value) {

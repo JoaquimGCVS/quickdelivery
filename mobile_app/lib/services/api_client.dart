@@ -12,6 +12,7 @@ class ApiClient {
 
   final String baseUrl;
   final http.Client _httpClient;
+  static const _timeout = Duration(seconds: 10);
 
   Uri _uri(String path) {
     return Uri.parse('$baseUrl$path');
@@ -49,21 +50,25 @@ class ApiClient {
     try {
       switch (method) {
         case 'GET':
-          response = await _httpClient.get(uri, headers: headers);
+          response = await _httpClient.get(uri, headers: headers).timeout(
+                _timeout,
+              );
           break;
         case 'POST':
-          response =
-              await _httpClient.post(uri, headers: headers, body: encodedBody);
+          response = await _httpClient
+              .post(uri, headers: headers, body: encodedBody)
+              .timeout(_timeout);
           break;
         case 'PATCH':
-          response =
-              await _httpClient.patch(uri, headers: headers, body: encodedBody);
+          response = await _httpClient
+              .patch(uri, headers: headers, body: encodedBody)
+              .timeout(_timeout);
           break;
         default:
           throw ArgumentError('Unsupported method $method');
       }
     } catch (_) {
-      throw const ApiException('Não foi possível conectar ao servidor.');
+      throw ApiException('Não foi possível conectar ao servidor em $baseUrl.');
     }
 
     final text = response.body;

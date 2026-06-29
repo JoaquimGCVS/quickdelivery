@@ -70,4 +70,4 @@ O terminal do consumidor mostra os eventos recebidos após as ações executadas
 
 Os logs comprovam que o backend publicou eventos no RabbitMQ e que outro processo consumiu essas mensagens pela fila, sem chamada REST direta entre eles.
 
-Na Sprint 3, o aplicativo Flutter do cliente não consome diretamente o RabbitMQ. Ele reflete as mudanças de estado por polling periódico na API REST, para atualização assíncrona do app cliente. O RabbitMQ continua responsável pela publicação e consumo de eventos no backend.
+O aplicativo Flutter não consome diretamente o RabbitMQ. Clientes e entregadores refletem mudanças de estado por polling periódico na API REST, para atualização assíncrona no app. O RabbitMQ continua responsável pela publicação e consumo de eventos no backend.
