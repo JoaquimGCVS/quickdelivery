@@ -140,6 +140,9 @@ Vídeo da Sprint 2:
 Vídeo da Sprint 3:
 - [YouTube](https://www.youtube.com/watch?v=T8alAklyMw8)
 
+Vídeo da Sprint 4:
+- [YouTube](https://www.youtube.com/watch?v=yI3KehC4v5c)
+
 ---
 
 ## Endpoints
