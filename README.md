@@ -181,7 +181,7 @@ Ao mover uma entrega para `ACCEPTED`, o body deve enviar `deliverymanId`. Um ent
 
 ## App Flutter
 
-O código-fonte do app Flutter unificado está em `mobile_app`. A Sprint 3 entrega o fluxo do cliente: login, listagem das próprias entregas, criação de entrega, tela de detalhes, cancelamento quando permitido e atualização automática por polling a cada 15 segundos. O login de entregador já existe e abre uma tela inicial simples, preparando o fluxo completo do prestador para a Sprint 4.
+O código-fonte do app Flutter unificado está em `mobile_app`. O app cobre o fluxo do cliente e do entregador: login por perfil, criação e acompanhamento de entregas pelo cliente, aceite e execução pelo entregador, tela de detalhes, cancelamentos permitidos pela máquina de estados e atualização automática por polling a cada 5 segundos.
 
 Em uma máquina com Flutter instalado, se os diretórios de plataforma ainda não existirem, gere-os uma vez:
 
@@ -199,6 +199,20 @@ flutter run --dart-define=QUICKDELIVERY_API_URL=http://10.0.2.2:3000
 ```
 
 Use `http://10.0.2.2:3000` para emulador Android. Em dispositivo físico, use o IP da máquina que está rodando o backend.
+
+Para executar no Flutter Web:
+
+```bash
+cd mobile_app
+flutter run -d chrome --dart-define=QUICKDELIVERY_API_URL=http://127.0.0.1:3000
+```
+
+No Web, use `http://127.0.0.1:3000`, não `http://10.0.2.2:3000`.
+
+Fluxo disponível no app:
+
+- Cliente: listar próprias entregas, criar nova solicitação, consultar detalhes e cancelar quando permitido.
+- Entregador: visualizar entregas pendentes, aceitar uma entrega, iniciar a execução, concluir a entrega e acompanhar histórico.
 
 Se o app já estiver instalado no emulador e o código não tiver mudado, basta iniciar o emulador e abrir o ícone do QuickDelivery.
 

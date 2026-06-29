@@ -25,6 +25,14 @@ Use `http://10.0.2.2:3000` no emulador Android. Para dispositivo físico, use o 
 flutter run --dart-define=QUICKDELIVERY_API_URL=http://SEU_IP:3000
 ```
 
+Para executar no Flutter Web:
+
+```bash
+flutter run -d chrome --dart-define=QUICKDELIVERY_API_URL=http://127.0.0.1:3000
+```
+
+No navegador, `10.0.2.2` não aponta para o backend local. Use `127.0.0.1` ou informe a URL correta com `QUICKDELIVERY_API_URL`.
+
 Para desligar o emulador pelo terminal:
 
 ```bash
@@ -39,6 +47,10 @@ Para desligar o emulador pelo terminal:
 - Detalhar entrega.
 - Cancelar entrega em `PENDING` ou `ACCEPTED`.
 - Perfil e logout.
-- Tela inicial simples para usuário `DELIVERYMAN`, preparando o fluxo da Sprint 4.
+- Área operacional do entregador com entregas disponíveis, entregas ativas e histórico.
+- Aceitar entrega pendente.
+- Iniciar entrega aceita.
+- Concluir entrega em andamento.
+- Cancelar entrega aceita atribuída ao entregador.
 
-As telas de lista e detalhe fazem polling automático a cada 15 segundos para refletir mudanças feitas no backend.
+As telas de lista, detalhe e área do entregador fazem polling automático a cada 5 segundos para refletir mudanças feitas no backend.
